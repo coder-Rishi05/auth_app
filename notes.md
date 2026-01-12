@@ -35,3 +35,121 @@ cookie : server se browser pe koi data store krwa dena is cookie.
 jb bhi kisi or route pe bhi jaaenge us route me automatically cookie bhi send hogi.
 
 this is the diffrence b/t authorisation header and cookie
+
+to read cookie we need `cookie parser`
+
+```js
+npm i cookie-parser
+
+```
+
+```js
+
+const bcrypt = require("bcrypt");
+
+const app = express();
+
+app.use(cookieParser());
+
+// setting the cookie 
+app.get("/", (req, res) => {
+  res.cookie("name", "rishi");
+  res.send("done");
+});
+
+// reading the coolie
+
+app.get("/read", (req, res) => {
+  console.log(req.cookies);
+  res.send("read page");
+});
+
+
+```
+
+now i will create a big string and send it to client browser and with that i can check user validation.
+
+- bcrypt
+
+it is used for incryption and dcryption isme hm salt bnate han and hash bnate han
+
+password : ise ese save nhi kr skte isko pehle encrypt krenge
+
+ex: sdfsjifhsgfbluyhdfvqodvndebvljquov : this is one the string that bcrypt do
+
+- To hash a password : encryption
+
+```js
+
+app.get("/",(req,res)=>{
+    bcrypt.genSalt(10, function(err, salt) {
+    bcrypt.hash("myPassword", salt, function(err, hash) {
+        console.log(hash)
+    });
+});
+})
+
+
+```
+
+- We cant do decryption so we do compare.
+
+sdfsjifhsgfbluyhdfvqodvndebvljquov : save it
+
+```js
+
+app.get("/",(req,res)=>{
+    bcrypt.compare("myPassword","sdfsjifhsgfbluyhdfvqodvndebvljquov",function(err, result) {
+    console.log(result)
+});
+
+})
+```
+
+```js
+const cookieParser = require("cookie-parser");
+const express = require("express");
+const bcrypt = require("bcrypt");
+
+const app = express();
+
+// hash password
+app.get("/", (req, res) => {
+  bcrypt.genSalt(10, function (err, salt) {
+    bcrypt.hash("myPassword", salt, function (err, hash) {
+      console.log("hashpwd : ", hash);
+    });
+  });
+  res.send("password hashed");
+});
+
+// check password
+
+app.get("/check", (req, res) => {
+  bcrypt.compare(
+    "myPassword",
+    "$2b$10$NJEXGDp82sOuTZ4gUb9qfORWcZLnyBHa.xrzd4wWzeZEhtX71.Nl6",
+    function (err, result) {
+      console.log(result); // return true and false 
+    }
+  );
+
+  res.send("check pwd")
+
+});
+
+app.listen(3001, () => {
+  console.log(`server running at : `, 3001);
+});
+
+//  $2b$10$NJEXGDp82sOuTZ4gUb9qfORWcZLnyBHa.xrzd4wWzeZEhtX71.Nl6
+
+```
+
+### jwt
+
+it is made of 3 things
+
+1. algorithm data
+2. data
+3. signature

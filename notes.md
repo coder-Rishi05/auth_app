@@ -4,11 +4,10 @@ authentication : it means cheking users credibility like taking email and passwo
 
 athorization : giving permission to perform action on database based on profile rank.
 
-
 ### process
 
-browser : send request on server.   
-                with some credential email and password
+browser : send request on server.  
+ with some credential email and password
 
 server hr baar bhool jaata hai ki hm kon han to hr kaam ke liye hr baar hmse validation mangega.
 
@@ -23,12 +22,11 @@ jb hm first time login krte han to hamare browser me ek string save ho jaati hai
 
 ### concept
 
-sabse pehle kuch cheeze seekhni hai alag alag 
+sabse pehle kuch cheeze seekhni hai alag alag
 
 - cookie kaise set krte han
 - bcrypt kaise use krte han for password encryption and dicryption.
 - jwt kya hai and jwt mein data kaise store kren and bahar nikale
-
 
 cookie : server se browser pe koi data store krwa dena is cookie.
 
@@ -44,14 +42,13 @@ npm i cookie-parser
 ```
 
 ```js
-
 const bcrypt = require("bcrypt");
 
 const app = express();
 
 app.use(cookieParser());
 
-// setting the cookie 
+// setting the cookie
 app.get("/", (req, res) => {
   res.cookie("name", "rishi");
   res.send("done");
@@ -63,13 +60,11 @@ app.get("/read", (req, res) => {
   console.log(req.cookies);
   res.send("read page");
 });
-
-
 ```
 
 now i will create a big string and send it to client browser and with that i can check user validation.
 
-- bcrypt
+### bcrypt
 
 it is used for incryption and dcryption isme hm salt bnate han and hash bnate han
 
@@ -80,16 +75,13 @@ ex: sdfsjifhsgfbluyhdfvqodvndebvljquov : this is one the string that bcrypt do
 - To hash a password : encryption
 
 ```js
-
-app.get("/",(req,res)=>{
-    bcrypt.genSalt(10, function(err, salt) {
-    bcrypt.hash("myPassword", salt, function(err, hash) {
-        console.log(hash)
+app.get("/", (req, res) => {
+  bcrypt.genSalt(10, function (err, salt) {
+    bcrypt.hash("myPassword", salt, function (err, hash) {
+      console.log(hash);
     });
+  });
 });
-})
-
-
 ```
 
 - We cant do decryption so we do compare.
@@ -97,13 +89,15 @@ app.get("/",(req,res)=>{
 sdfsjifhsgfbluyhdfvqodvndebvljquov : save it
 
 ```js
-
-app.get("/",(req,res)=>{
-    bcrypt.compare("myPassword","sdfsjifhsgfbluyhdfvqodvndebvljquov",function(err, result) {
-    console.log(result)
+app.get("/", (req, res) => {
+  bcrypt.compare(
+    "myPassword",
+    "sdfsjifhsgfbluyhdfvqodvndebvljquov",
+    function (err, result) {
+      console.log(result);
+    }
+  );
 });
-
-})
 ```
 
 ```js
@@ -130,12 +124,11 @@ app.get("/check", (req, res) => {
     "myPassword",
     "$2b$10$NJEXGDp82sOuTZ4gUb9qfORWcZLnyBHa.xrzd4wWzeZEhtX71.Nl6",
     function (err, result) {
-      console.log(result); // return true and false 
+      console.log(result); // return true and false
     }
   );
 
-  res.send("check pwd")
-
+  res.send("check pwd");
 });
 
 app.listen(3001, () => {
@@ -143,7 +136,6 @@ app.listen(3001, () => {
 });
 
 //  $2b$10$NJEXGDp82sOuTZ4gUb9qfORWcZLnyBHa.xrzd4wWzeZEhtX71.Nl6
-
 ```
 
 ### jwt
@@ -153,3 +145,45 @@ it is made of 3 things
 1. algorithm data
 2. data
 3. signature
+
+ye basically vhi string hai jo hm user ko bhejte han.
+
+is string me hm data ko encrypt kr dete han. un string me hm email bhejenge kyonki email hamesha unique hoga. and server will decode the string on request.
+
+```js
+const cookieParser = require("cookie-parser");
+const express = require("express");
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+
+const app = express();
+
+app.use(cookieParser());
+app.get("/", (req, res) => {
+  // we can store any type of data here
+  // and also one more thing secrets
+  // is secret ke base pe data encrypt hoga
+
+  let token = jwt.sign({ email: "abc@gmail.com" }, "secret");
+  console.log(token);
+  res.cookie("jwt", token);
+  res.send("token send");
+});
+
+app.get("/read", (req, res) => {
+  console.log("token : ", req.cookies.jwt);
+  res.send("got jwt");
+});
+
+// to verify jwt
+
+app.get("/verify", (req, res) => {
+  // verify krne key liye secret dena pdta hai.
+  let data = jwt.verify(req.cookies.jwt, "secret");
+  console.log(data);
+});
+
+app.listen(3001, () => {
+  console.log(`server running at : `, 3001);
+});
+```

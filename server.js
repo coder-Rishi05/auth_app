@@ -23,7 +23,7 @@ app.post("/create", (req, res) => {
   let { userName, email, password, age } = req.body;
 
   bcrypt.genSalt(10, function (err, salt) {
-    bcrypt.hash("myPassword", salt, async function (err, hash) {
+    bcrypt.hash(req.body.password, salt, async function (err, hash) {
       let ceratedUser = await userModel.create({
         userName,
         email,
@@ -50,8 +50,7 @@ app.post("/login", async (req, res) => {
       let token = jwt.sign({ email: user.email }, "heyThere");
       res.cookie("token", token);
       res.send("you can login");
-    }
-    res.send("you can'nt login");
+    } else res.send("you can'nt login");
   });
 });
 
